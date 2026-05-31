@@ -1,3 +1,4 @@
+// app/api/pdf/route.ts
 import { NextRequest, NextResponse } from "next/server"
 import puppeteer from "puppeteer-core"
 
