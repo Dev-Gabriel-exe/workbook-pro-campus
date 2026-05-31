@@ -299,7 +299,7 @@ const en: Content = {
     eyebrow: "Roadmap",
     title: "Looking Ahead",
     cards: [
-      { title: "High School Expansion", detail: "Extending the 1:1 program to High School — individual devices, teacher training and a sustained digital culture through the transition." },
+      { title: "Deeper Student Protagonism", detail: "Expanding the app and digital book publishing program, encouraging more students to create real solutions for the school community." },
       { title: "AI Across Segments", detail: "Broadening AI integration and training teachers to gamify classes and create personalized materials with AI." },
       { title: "Multisensory Books", detail: "AJULE's student-made digital books will become multisensory, with audio description — extending accessibility beyond the school walls." },
       { title: "Inter-school Collaboration", detail: "Connecting with another school to exchange best practices and collaborative projects via Shared iPad or Freeform." },
@@ -509,7 +509,7 @@ const pt: Content = {
     eyebrow: "Roteiro",
     title: "Olhando Para o Futuro",
     cards: [
-      { title: "Expansão para o Ensino Médio", detail: "Estender o programa 1:1 ao Ensino Médio — dispositivos individuais, formação docente e uma cultura digital sustentada durante a transição." },
+      { title: "Foco em protagonismo estudantil", detail: "Ampliar o programa de publicação de apps e livros digitais, incentivando mais estudantes a criarem soluções reais para a comunidade escolar." },
       { title: "IA em Todos os Segmentos", detail: "Ampliar a integração da IA e capacitar professores para gamificar aulas e criar materiais personalizados com IA." },
       { title: "Livros Multissensoriais", detail: "Os livros digitais feitos pelos estudantes da AJULE se tornarão multissensoriais, com audiodescrição — estendendo a acessibilidade para além dos muros da escola." },
       { title: "Colaboração Entre Escolas", detail: "Conectar-se com outra escola para trocar boas práticas e desenvolver projetos colaborativos via Shared iPad ou Freeform." },

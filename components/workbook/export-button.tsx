@@ -8,6 +8,9 @@ export function ExportButton() {
   const { lang, t } = useLanguage()
   const [loading, setLoading] = useState(false)
 
+  // Só mostra em desenvolvimento local
+  if (process.env.NODE_ENV !== "development") return null
+
   const handleExport = async () => {
     setLoading(true)
     try {
@@ -37,7 +40,7 @@ export function ExportButton() {
       {loading ? (
         <>
           <Loader2 className="size-4 animate-spin" />
-          Gerando PDF...
+          {lang === "pt" ? "Gerando PDF..." : "Generating PDF..."}
         </>
       ) : (
         <>

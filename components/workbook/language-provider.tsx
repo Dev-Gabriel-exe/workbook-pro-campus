@@ -18,10 +18,24 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("en")
 
   useEffect(() => {
+    // 1. Prioridade: parâmetro ?lang= na URL (usado pelo Puppeteer)
+    const urlParams = new URLSearchParams(window.location.search)
+    const urlLang = urlParams.get("lang") as Lang | null
+    if (urlLang === "en" || urlLang === "pt") {
+      setLangState(urlLang)
+      window.localStorage.setItem(STORAGE_KEY, urlLang)
+      return
+    }
+
+    // 2. localStorage
     const stored = window.localStorage.getItem(STORAGE_KEY) as Lang | null
     if (stored === "en" || stored === "pt") {
       setLangState(stored)
-    } else if (navigator.language.toLowerCase().startsWith("pt")) {
+      return
+    }
+
+    // 3. Idioma do navegador
+    if (navigator.language.toLowerCase().startsWith("pt")) {
       setLangState("pt")
     }
   }, [])
