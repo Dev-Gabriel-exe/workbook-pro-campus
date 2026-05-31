@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import puppeteer from "puppeteer-core"
 
-export const maxDuration = 60 // Vercel: permite até 60s nessa rota
+export const maxDuration = 60
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -16,21 +16,19 @@ export async function GET(req: NextRequest) {
 
   let browser
   try {
-    // Conecta ao Browserless.io em vez de lançar Puppeteer local
     browser = await puppeteer.connect({
       browserWSEndpoint: `wss://production-sfo.browserless.io?token=${browserlessToken}`,
     })
 
     const page = await browser.newPage()
-
-    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1.5 })
+    await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 })
 
     await page.goto(`${baseUrl}?lang=${lang}`, {
       waitUntil: "networkidle0",
-      timeout: 60000,
+      timeout: 45000,
     })
 
-    // Oculta sidebar, remove margem, desativa scroll suave
+    // Oculta sidebar, remove margem
     await page.evaluate(() => {
       document.querySelectorAll(".no-print").forEach((el) => {
         ;(el as HTMLElement).style.display = "none"
@@ -40,69 +38,37 @@ export async function GET(req: NextRequest) {
       document.documentElement.style.scrollBehavior = "auto"
     })
 
-    const sectionIds = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll("main > section, main > [id]"))
-        .map((el) => el.id)
-        .filter(Boolean)
+    // Scrolla a página inteira para disparar todas as animações
+    await page.evaluate(async () => {
+      await new Promise<void>((resolve) => {
+        let totalHeight = 0
+        const distance = 400
+        const timer = setInterval(() => {
+          window.scrollBy(0, distance)
+          totalHeight += distance
+          if (totalHeight >= document.body.scrollHeight) {
+            clearInterval(timer)
+            window.scrollTo(0, 0)
+            resolve()
+          }
+        }, 80)
+      })
     })
 
-    const PDFDocument = (await import("pdf-lib")).PDFDocument
-    const finalPdf = await PDFDocument.create()
+    // Aguarda animações terminarem após o scroll
+    await new Promise((r) => setTimeout(r, 2000))
 
-    for (const id of sectionIds) {
-      // Scrolla até a seção
-      await page.evaluate((sectionId) => {
-        const el = document.getElementById(sectionId)
-        if (el) el.scrollIntoView()
-      }, id)
+    // Gera PDF direto pelo Puppeteer (muito mais rápido que screenshots)
+    const pdfBytes = await page.pdf({
+      format: "A4",
+      landscape: true,
+      printBackground: true,
+      margin: { top: "0", right: "0", bottom: "0", left: "0" },
+    })
 
-      // Aguarda animações (contadores, fade-ins)
-      await new Promise((r) => setTimeout(r, 1500))
-
-      // Verifica se ainda há animações rodando
-      await page.evaluate(() => {
-        return new Promise<void>((resolve) => {
-          let running = false
-          document.querySelectorAll("*").forEach((el) => {
-            const style = window.getComputedStyle(el)
-            if (
-              style.animationPlayState === "running" ||
-              style.transitionDuration !== "0s"
-            ) {
-              running = true
-            }
-          })
-          if (!running) resolve()
-          else setTimeout(resolve, 1000)
-        })
-      })
-
-      const element = await page.$(`#${id}`)
-      if (!element) continue
-
-      const screenshot = await element.screenshot({
-        type: "png",
-        omitBackground: false,
-      })
-
-      const box = await element.boundingBox()
-      if (!box) continue
-
-      const scale = 0.75
-      const pdfPage = finalPdf.addPage([box.width * scale, box.height * scale])
-      const img = await finalPdf.embedPng(screenshot as Buffer)
-      pdfPage.drawImage(img, {
-        x: 0,
-        y: 0,
-        width: box.width * scale,
-        height: box.height * scale,
-      })
-    }
-
-    const pdfBytes = await finalPdf.save()
     await browser.close()
 
-    return new NextResponse(Buffer.from(pdfBytes), {
+    return new NextResponse(pdfBytes, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
