@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const lang = searchParams.get("lang") ?? "pt"
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://workbook-pro-campus.vercel.app"
   const browserlessToken = process.env.BROWSERLESS_TOKEN
 
   if (!browserlessToken) {
