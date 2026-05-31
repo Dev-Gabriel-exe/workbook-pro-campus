@@ -1,53 +1,45 @@
 import { NextRequest, NextResponse } from "next/server"
-import puppeteer from "puppeteer"
+import puppeteer from "puppeteer-core"
+
+export const maxDuration = 60 // Vercel: permite até 60s nessa rota
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const lang = searchParams.get("lang") ?? "pt"
 
-  // URL base — em dev é localhost:3000, em produção é a URL do site
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+  const browserlessToken = process.env.BROWSERLESS_TOKEN
+
+  if (!browserlessToken) {
+    return NextResponse.json({ error: "BROWSERLESS_TOKEN não configurado" }, { status: 500 })
+  }
 
   let browser
   try {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-      ],
+    // Conecta ao Browserless.io em vez de lançar Puppeteer local
+    browser = await puppeteer.connect({
+      browserWSEndpoint: `wss://production-sfo.browserless.io?token=${browserlessToken}`,
     })
 
     const page = await browser.newPage()
 
-    // Viewport largo para simular desktop
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1.5 })
 
-    // Abre o site
     await page.goto(`${baseUrl}?lang=${lang}`, {
       waitUntil: "networkidle0",
       timeout: 60000,
     })
 
-    // Injeta JS para:
-    // 1. Ocultar sidebar/no-print
-    // 2. Remover margem do main
-    // 3. Desabilitar scroll-behavior
+    // Oculta sidebar, remove margem, desativa scroll suave
     await page.evaluate(() => {
-      // Remove elementos de UI
       document.querySelectorAll(".no-print").forEach((el) => {
         ;(el as HTMLElement).style.display = "none"
       })
-      // Remove margem do main causada pelo sidebar
       const main = document.querySelector("main") as HTMLElement
       if (main) main.style.marginLeft = "0"
-
-      // Desabilita scroll suave
       document.documentElement.style.scrollBehavior = "auto"
     })
 
-    // Pega todas as seções
     const sectionIds = await page.evaluate(() => {
       return Array.from(document.querySelectorAll("main > section, main > [id]"))
         .map((el) => el.id)
@@ -55,7 +47,6 @@ export async function GET(req: NextRequest) {
     })
 
     const PDFDocument = (await import("pdf-lib")).PDFDocument
-
     const finalPdf = await PDFDocument.create()
 
     for (const id of sectionIds) {
@@ -65,16 +56,14 @@ export async function GET(req: NextRequest) {
         if (el) el.scrollIntoView()
       }, id)
 
-      // Aguarda 1.5s para animações terminarem (contadores, fade-ins, etc.)
+      // Aguarda animações (contadores, fade-ins)
       await new Promise((r) => setTimeout(r, 1500))
 
-      // Aguarda qualquer animação CSS/JS terminar
+      // Verifica se ainda há animações rodando
       await page.evaluate(() => {
         return new Promise<void>((resolve) => {
-          // Verifica se há animações em andamento
-          const animated = document.querySelectorAll("*")
           let running = false
-          animated.forEach((el) => {
+          document.querySelectorAll("*").forEach((el) => {
             const style = window.getComputedStyle(el)
             if (
               style.animationPlayState === "running" ||
@@ -83,16 +72,11 @@ export async function GET(req: NextRequest) {
               running = true
             }
           })
-          if (!running) {
-            resolve()
-          } else {
-            // Espera mais um pouco se ainda houver animações
-            setTimeout(resolve, 1000)
-          }
+          if (!running) resolve()
+          else setTimeout(resolve, 1000)
         })
       })
 
-      // Captura a seção
       const element = await page.$(`#${id}`)
       if (!element) continue
 
@@ -101,15 +85,11 @@ export async function GET(req: NextRequest) {
         omitBackground: false,
       })
 
-      // Pega dimensões da seção
       const box = await element.boundingBox()
       if (!box) continue
 
-      // Cria página no PDF com dimensões exatas da seção (em pontos, 1px ≈ 0.75pt)
       const scale = 0.75
       const pdfPage = finalPdf.addPage([box.width * scale, box.height * scale])
-
-      // Embute o screenshot
       const img = await finalPdf.embedPng(screenshot as Buffer)
       pdfPage.drawImage(img, {
         x: 0,
@@ -120,7 +100,6 @@ export async function GET(req: NextRequest) {
     }
 
     const pdfBytes = await finalPdf.save()
-
     await browser.close()
 
     return new NextResponse(Buffer.from(pdfBytes), {
