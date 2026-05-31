@@ -1,0 +1,196 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --brand-green: #2f7d3a;
+  --brand-green-deep: #1e5527;
+  --brand-lime: #5e8c14;
+  --brand-graphite: #1f2430;
+
+  --background: #f6f8f4;
+  --foreground: #1f2a22;
+  --card: #ffffff;
+  --card-foreground: #1f2a22;
+  --popover: #ffffff;
+  --popover-foreground: #1f2a22;
+  --primary: #2f7d3a;
+  --primary-foreground: #ffffff;
+  --secondary: #eaf2e8;
+  --secondary-foreground: #1e5527;
+  --muted: #eaf2e8;
+  --muted-foreground: #586458;
+  --accent: #5e8c14;
+  --accent-foreground: #ffffff;
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: #ffffff;
+  --border: #dde7da;
+  --input: #dde7da;
+  --ring: #2f7d3a;
+  --chart-1: #2f7d3a;
+  --chart-2: #8cc63f;
+  --chart-3: #1e5527;
+  --chart-4: #a7d36a;
+  --chart-5: #6f9b6f;
+  --radius: 0.75rem;
+  --sidebar: #1e5527;
+  --sidebar-foreground: #e7f1e7;
+  --sidebar-primary: #8cc63f;
+  --sidebar-primary-foreground: #143d1b;
+  --sidebar-accent: #2f7d3a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2c6b35;
+  --sidebar-ring: #8cc63f;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, monospace;
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-deep: var(--brand-green-deep);
+  --color-brand-lime: var(--brand-lime);
+  --color-brand-graphite: var(--brand-graphite);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+  }
+}
+
+@media print {
+  /* Oculta sidebar e navegação */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Remove margem do sidebar */
+  .print-full {
+    margin-left: 0 !important;
+  }
+
+  /* Força impressão de cores de fundo */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Cada section vira uma página */
+  section {
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    min-height: auto !important;
+  }
+
+  /* Última section não quebra página depois */
+  section:last-child {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Remove sombras */
+  * {
+    box-shadow: none !important;
+  }
+
+  /* Evita quebra dentro de cards */
+  .rounded-2xl,
+  [class*="rounded"] {
+    break-inside: avoid;
+  }
+
+  /* Página A4 paisagem com margens */
+  @page {
+    size: A4 landscape;
+    margin: 1.2cm 1.5cm;
+  }
+
+  /* Ajusta tamanho de fonte base */
+  body {
+    font-size: 10pt;
+  }
+}
